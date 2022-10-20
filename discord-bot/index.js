@@ -71,8 +71,6 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
         Promise.resolve(is_member).then(function (value) {
             is_member_bool = !!value;
         });
-        console.log(is_member_bool);
-        console.log(reaction.message.content);
         let message = reaction.message.content;
         if (reaction.emoji.name === '🚫') {
             let description = '';
