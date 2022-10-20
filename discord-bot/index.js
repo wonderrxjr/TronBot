@@ -1,7 +1,7 @@
 // Require the necessary discord.js classes
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, GatewayIntentBits, Partials} = require('discord.js');
+const { Client, Collection, GatewayIntentBits, Partials, Events, PermissionsBitField, EmbedBuilder} = require('discord.js');
 const { token } = require('./config.json');
 
 // Create a new client instance
@@ -47,7 +47,118 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-
+client.on(Events.MessageReactionAdd, async (reaction, user) => {
+    if (reaction.partial) {
+        try {
+            await reaction.fetch();
+        } catch (error) {
+            console.log('Something went wrong when fetching the message: ', error);
+        }
+    }
+    if (user.partial) {
+        try {
+            await user.fetch();
+        }
+        catch (error) {
+            console.log('Something went wrong when fetching the user: ', error);
+        }
+    }
+    try {
+        let offender = reaction.message.guild.members.cache.get(reaction.message.author.id);
+        let reporter = reaction.message.guild.members.cache.get(user.id);
+        console.log(reaction.message.content);
+        let message = reaction.message.content;
+        if (reaction.emoji.name === '🚫') {
+            let description = '';
+            if (reaction.message.author.id === user.id) {
+                await reaction.message.delete();
+            }
+            else if (reporter.permissions.has(PermissionsBitField.Flags.Administrator) || reporter.permissions.has(PermissionsBitField.Flags.ManageMessages)) {
+                await reaction.message.delete();
+                description += '*The message was deleted by a moderator*\n';
+            }
+            if (reaction.message.author.id !== user.id && reaction.count === 1) {
+                let logChannel = reaction.message.guild.channels.cache.get('504968982475046913');
+                let now = new Date();
+                let message_creation_date = new Date(reaction.message.createdTimestamp);
+                let reacted_message_author_roles
+                let long_message = false;
+                let guild = reaction.message.guild;
+                let is_member = guild.members.cache.has(reaction.message.author.id);
+                if (!is_member) {
+                    description += `**Offender:** ${reaction.message.author.tag} (not a member of this server)\n`;
+                }
+                if (is_member) {
+                    reacted_message_author_roles = reaction.message.member.roles.cache.map(role => role.name).join(', ');
+                }
+                const reported_message_embed = new EmbedBuilder()
+                    .setColor(0xff0000)
+                    .setTitle('Reported message - ID: ' + reaction.message.id)
+                    .setDescription(description)
+                if (reaction.message.author.avatarURL() === null) {
+                    reported_message_embed.setThumbnail('https://cdn.discordapp.com/embed/avatars/0.png');
+                }
+                else {
+                    reported_message_embed.setThumbnail(reaction.message.author.avatarURL());
+                }
+                reported_message_embed.addFields({
+                    name: 'Username', value: '<@' + reaction.message.author.id + '>', inline: true
+                })
+                if (is_member) {
+                    let nickname = reaction.message.member.nickname;
+                    reported_message_embed.addFields(
+                        {name: 'Nickname', value: '' + nickname, inline: true},
+                        {name: 'Roles', value: '' + reacted_message_author_roles, inline: true}
+                    );
+                }
+                reported_message_embed.addFields(
+                    {name: 'Message creation date', value: '' + message_creation_date, inline: true},
+                )
+                if (message.length > 1024) {
+                    long_message = true;
+                    let message_length = message.length;
+                    let message_part_2 = message.slice(1021, message_length);
+                    let message_part_1 = message.slice(0, 1021);
+                    reported_message_embed.addFields(
+                        {name: 'Message content', value: message_part_1 + '...', inline: false}
+                    )
+                    const reported_message_embed_2 = new EmbedBuilder()
+                        .setColor(0xff0000)
+                        .setDescription('*The message was too long to be displayed in one embed field, so it was split into two.*')
+                        .addFields({name: "Message content (continued)", value: "..." + message_part_2, inline: false})
+                        .setFooter({
+                            text: 'Reported by ' + reporter.user.tag  + " * " + now,
+                            iconURL: reporter.avatar
+                        });
+                } else {
+                    if (reaction.message.content.length > 0) {
+                        reported_message_embed.addFields(
+                            {name: 'Message content', value: '' + message, inline: false}
+                        )
+                    } else {
+                        reported_message_embed.addFields(
+                            {
+                                name: 'Message content',
+                                value: '*The reported message only contained an attachment; make sure to have it saved before reporting it as the bot cannot currently save (deleted) pictures. You can also give out a description of the attachment below*',
+                                inline: false
+                            }
+                        )
+                    }
+                }
+                reported_message_embed.setFooter({
+                    text: 'Reported by ' + reporter.user.tag + " * " + now,
+                    iconURL: reporter.avatar
+                });
+                await client.channels.cache.get('1032510938399653978').send({embeds: [reported_message_embed]});
+                if (long_message) {
+                    await client.channels.cache.get('1032510938399653978').send({embeds: [reported_message_embed_2]});
+                }
+            }
+        }
+    } catch (error) {
+        console.log(error);
+    }
+});
 
 // Login to Discord
 client.login(token);
