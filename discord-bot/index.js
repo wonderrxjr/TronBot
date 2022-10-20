@@ -6,7 +6,7 @@ const { token } = require('./config.json');
 
 // Create a new client instance
 const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions],
+    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction]});
 
 const eventsPath = path.join(__dirname, 'events');
@@ -64,8 +64,14 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
         }
     }
     try {
-        let offender = reaction.message.guild.members.cache.get(reaction.message.author.id);
+        let guild = reaction.message.guild;
         let reporter = reaction.message.guild.members.cache.get(user.id);
+        let is_member = guild.members.fetch(reaction.message.member);
+        let is_member_bool = false;
+        Promise.resolve(is_member).then(function (value) {
+            is_member_bool = !!value;
+        });
+        console.log(is_member_bool);
         console.log(reaction.message.content);
         let message = reaction.message.content;
         if (reaction.emoji.name === '🚫') {
@@ -78,39 +84,41 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
                 description += '*The message was deleted by a moderator*\n';
             }
             if (reaction.message.author.id !== user.id && reaction.count === 1) {
-                let logChannel = reaction.message.guild.channels.cache.get('504968982475046913');
                 let now = new Date();
                 let message_creation_date = new Date(reaction.message.createdTimestamp);
                 let reacted_message_author_roles
                 let long_message = false;
-                let guild = reaction.message.guild;
-                let is_member = guild.members.cache.has(reaction.message.author.id);
-                if (!is_member) {
-                    description += `**Offender:** ${reaction.message.author.tag} (not a member of this server)\n`;
+                if (!is_member_bool) {
+                    description += `*User is not a member of this server*\n`;
                 }
-                if (is_member) {
+                if (is_member_bool) {
                     reacted_message_author_roles = reaction.message.member.roles.cache.map(role => role.name).join(', ');
                 }
+                const reported_message_embed_2 = new EmbedBuilder()
                 const reported_message_embed = new EmbedBuilder()
                     .setColor(0xff0000)
                     .setTitle('Reported message - ID: ' + reaction.message.id)
-                    .setDescription(description)
+                if (description !== '') {
+                    reported_message_embed.setDescription(description);
+                }
                 if (reaction.message.author.avatarURL() === null) {
                     reported_message_embed.setThumbnail('https://cdn.discordapp.com/embed/avatars/0.png');
                 }
                 else {
                     reported_message_embed.setThumbnail(reaction.message.author.avatarURL());
                 }
-                reported_message_embed.addFields({
-                    name: 'Username', value: '<@' + reaction.message.author.id + '>', inline: true
-                })
-                if (is_member) {
+                reported_message_embed.addFields(
+                    { name: 'User ID', value: '<@' + reaction.message.author.id + '>', inline: true },
+                    { name: 'Username', value: reaction.message.author.tag, inline: true },
+                );
+                if (is_member_bool) {
                     let nickname = reaction.message.member.nickname;
                     reported_message_embed.addFields(
                         {name: 'Nickname', value: '' + nickname, inline: true},
                         {name: 'Roles', value: '' + reacted_message_author_roles, inline: true}
                     );
                 }
+                reported_message_embed.addFields({name: 'Channel', value: '<#' + reaction.message.channel.id + '>', inline: true})
                 reported_message_embed.addFields(
                     {name: 'Message creation date', value: '' + message_creation_date, inline: true},
                 )
@@ -122,13 +130,13 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
                     reported_message_embed.addFields(
                         {name: 'Message content', value: message_part_1 + '...', inline: false}
                     )
-                    const reported_message_embed_2 = new EmbedBuilder()
+                    reported_message_embed_2
                         .setColor(0xff0000)
                         .setDescription('*The message was too long to be displayed in one embed field, so it was split into two.*')
                         .addFields({name: "Message content (continued)", value: "..." + message_part_2, inline: false})
                         .setFooter({
                             text: 'Reported by ' + reporter.user.tag  + " * " + now,
-                            iconURL: reporter.avatar
+                            iconURL: user.avatarURL()
                         });
                 } else {
                     if (reaction.message.content.length > 0) {
@@ -147,7 +155,7 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
                 }
                 reported_message_embed.setFooter({
                     text: 'Reported by ' + reporter.user.tag + " * " + now,
-                    iconURL: reporter.avatar
+                    iconURL: user.avatarURL()
                 });
                 await client.channels.cache.get('1032510938399653978').send({embeds: [reported_message_embed]});
                 if (long_message) {
