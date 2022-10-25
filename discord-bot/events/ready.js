@@ -56,6 +56,7 @@ const songs = [
     ['Starboy (feat. Daft Punk)', 'The Weeknd', 230000],
     ['I Feel It Coming (feat. Daft Punk)', 'The Weeknd', 229000],
     ['Overnight', 'Parcels', 219000],
+    ['Music Sounds Better With You', 'Stardust', 404000],
 ]
 
 module.exports = {
