@@ -118,7 +118,7 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
                 }
                 reported_message_embed.addFields({name: 'Channel', value: '<#' + reaction.message.channel.id + '>', inline: true})
                 reported_message_embed.addFields(
-                    {name: 'Message creation date', value: '' + message_creation_date, inline: true},
+                    {name: 'Message creation date', value: '<t:' + Math.floor(message_creation_date / 1000) + ':F>' , inline: true},
                 )
                 if (message.length > 1024) {
                     long_message = true;
