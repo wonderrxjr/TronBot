@@ -155,9 +155,9 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
                     text: 'Reported by ' + reporter.user.tag + " * " + now,
                     iconURL: user.avatarURL()
                 });
-                await client.channels.cache.get('1032510938399653978').send({embeds: [reported_message_embed]});
+                await client.channels.cache.get('504968982475046913').send({embeds: [reported_message_embed]});
                 if (long_message) {
-                    await client.channels.cache.get('1032510938399653978').send({embeds: [reported_message_embed_2]});
+                    await client.channels.cache.get('504968982475046913').send({embeds: [reported_message_embed_2]});
                 }
             }
         }
