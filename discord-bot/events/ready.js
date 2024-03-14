@@ -57,6 +57,18 @@ const songs = [
     ['I Feel It Coming (feat. Daft Punk)', 'The Weeknd', 229000],
     ['Overnight', 'Parcels', 219000],
     ['Music Sounds Better With You', 'Stardust', 404000],
+    ['Chord Memory (Daft Punk Remix', 'Ian Pooley', 427000],
+    ['Mothership Reconnection (Daft Punk Remix)', 'Scott Grooves', 241000],
+    ['Ouverture', 'Daft Punk', 161000],
+    ['Aerodynamite', 'Daft Punk', 469000],
+    ['Horizon Ouverture', 'Daft Punk', 128000],
+    ['GLBTM (Studio Outtakes)', 'Daft Punk', 386000],
+    ['Infinity Repeating (2013 Demo) [feat. Julian Casablancas + The Voidz', 'Daft Punk', 240000],
+    ['GL (Early Take) [feat. Pharrell Williams & Nile Rodgers]', 'Daft Punk', 36000],
+    ['Prime (2012 Unfinished)', 'Daft Punk', 287000],
+    ['LYTD (Vocoder Tests) [feat. Pharrell Williams]', 'Daft Punk', 129000],
+    ['The Writing of Fragments of Time (feat. Todd Edwards)', 'Daft Punk', 498000],
+    ['Touch (2021 Epilogue) [feat. Paul Williams]', 'Daft Punk', 180000]
 ]
 
 module.exports = {
