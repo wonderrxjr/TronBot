@@ -1,5 +1,5 @@
 const songs = [
-    ['Daftendirkect', 'Daft Punk', 165000],
+    ['Daftendirekt', 'Daft Punk', 165000],
     ['WDPK 83.7 FM', 'Daft Punk', 28000],
     ['Revolution 909', 'Daft Punk', 350000],
     ['Da Funk', 'Daft Punk', 329000],
