@@ -7,3 +7,5 @@ Discord Moderation/Fun bot for the offical Daft Punk Discord
 - Might also have some fun elements too not sure yet
   
 - Looking to write using the discord.js framework
+
+Based on [Rin](https://github.com/kyllian1212/Rin-rewrite) by Kyllian1212
