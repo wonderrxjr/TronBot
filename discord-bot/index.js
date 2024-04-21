@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, GatewayIntentBits, Partials, Events, PermissionsBitField, EmbedBuilder} = require('discord.js');
 const { token } = require('./config.json');
+const moment = require("moment");
 
 // Create a new client instance
 const client = new Client({
@@ -165,6 +166,15 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
         console.log(error);
     }
 });
+
+client.on(Events.GuildMemberUpdate, async(OldGuildMember, NewGuildMember) => {
+    if(OldGuildMember.pending && !NewGuildMember.pending) {
+        let clear_time = moment.duration(moment(moment().now).diff(NewGuildMember.joinedAt))
+        if(clear_time.seconds() < 5) {
+            await NewGuildMember.kick('Cleared onboarding too fast')
+        }
+    }
+})
 
 // Login to Discord
 client.login(token);
