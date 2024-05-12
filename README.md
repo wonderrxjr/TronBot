@@ -1,5 +1,5 @@
 # TronBot
-Discord Moderation/Fun bot for the offical Daft Punk Discord
+Discord Moderation bot for the offical Daft Punk Discord
 
 **This bot will probably only work on the Daft Punk Discord server once complete**
 
