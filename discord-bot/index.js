@@ -67,11 +67,13 @@ client.on(Events.MessageReactionAdd, async (reaction, user) => {
     try {
         let guild = reaction.message.guild;
         let reporter = reaction.message.guild.members.cache.get(user.id);
-        let is_member = guild.members.fetch(reaction.message.member);
         let is_member_bool = false;
-        Promise.resolve(is_member).then(function (value) {
-            is_member_bool = !!value;
-        });
+        try {
+            let is_member = await guild.members.fetch(reaction.message.author.id);
+            is_member_bool = !!is_member;
+        } catch (error) {
+            is_member_bool = false;
+        }
         let message = reaction.message.content;
         if (reaction.emoji.name === '🚫') {
             let description = '';
